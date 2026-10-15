@@ -19,11 +19,11 @@ class MainActivity : Activity() {
             View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
             View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
             View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION)
-        setContentView(AimView())
+        setContentView(AimView(this))
     }
 }
 
-private class AimView : View() {
+private class AimView(context: android.content.Context) : View(context) {
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
     private var targetX = 300f
     private var targetY = 300f
