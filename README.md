@@ -17,3 +17,5 @@ A standalone landscape Android touch-aim trainer. It does **not** access, inject
 5. Extract the downloaded ZIP to get `app-debug.apk`.
 
 The APK is a debug build for personal testing, not a Play Store release.
+
+Build workflow trigger: push to main.
