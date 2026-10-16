@@ -4,15 +4,19 @@ plugins {
 }
 
 android {
-    namespace = "com.ollfx.aimtrainer"
+    namespace = "com.ollfx.aimlab"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.ollfx.aimtrainer"
+        applicationId = "com.ollfx.aimlab"
         minSdk = 23
-        targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        targetSdk = 28
+        versionCode = 2
+        versionName = "2.0"
+    }
+
+    sourceSets.getByName("main") {
+        assets.srcDir("../web")
     }
 
     compileOptions {
@@ -20,7 +24,5 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
-    }
+    kotlinOptions { jvmTarget = "17" }
 }

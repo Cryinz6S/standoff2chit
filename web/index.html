@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0a1017">
+  <meta name="description" content="Offline mobile aim and geometry simulator. Not connected to Standoff 2.">
+  <title>Tactical Aim Lab · Mobile</title>
+  <style>
+    :root {color-scheme:dark; --bg:#090f16;--surface:#111b26;--surface2:#172431;--line:#26394a;--muted:#8495a7;--text:#eaf1f7;--teal:#54e3c2;--orange:#ffb66f;--red:#ff7785;--radius:15px}
+    *{box-sizing:border-box} html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;-webkit-tap-highlight-color:transparent}
+    body{background:radial-gradient(ellipse at 45% -15%,#1c3144 0%,#090f16 55%);overflow-x:hidden}
+    main{max-width:1270px;padding:22px 24px 28px;margin:auto}
+    header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:19px}
+    .brand{display:flex;gap:12px;align-items:center}.mark{display:grid;place-items:center;width:40px;height:40px;border:1px solid #427c78;color:var(--teal);border-radius:11px;background:#17322f;font-size:23px;font-weight:700}
+    h1{font-size:17px;letter-spacing:.075em;margin:0;font-weight:820} .eyebrow{color:var(--muted);font-size:10px;letter-spacing:.19em;font-weight:700;margin-top:3px}
+    .tag{border-radius:50px;border:1px solid #355d55;background:#16312f;color:var(--teal);padding:8px 11px;font-size:11px;font-weight:800;letter-spacing:.08em}
+    .layout{display:grid;grid-template-columns:minmax(0,1fr) 285px;gap:16px;align-items:start}
+    .surface{border:1px solid #263747;border-radius:var(--radius);background:linear-gradient(155deg,#14202b,#101923);box-shadow:0 18px 50px #01050b56;overflow:hidden}
+    .arena-top{display:flex;justify-content:space-between;align-items:center;padding:15px 17px;border-bottom:1px solid #223445;gap:8px}
+    .arena-top .title{font-size:12px;letter-spacing:.14em;font-weight:850} .tiny{font-size:10px;color:var(--muted);letter-spacing:.09em}
+    .status{font-size:10px;letter-spacing:.07em;color:var(--teal);font-weight:800}
+    .viewport{position:relative;aspect-ratio:1.49;min-height:250px;max-height:67dvh;background:#0a151f;touch-action:none;user-select:none;overflow:hidden}
+    canvas{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair}
+    .overlay-tip{position:absolute;left:13px;top:12px;font-size:10px;background:#0a131ac9;border:1px solid #243743;color:#9db4bf;padding:7px 9px;border-radius:7px;letter-spacing:.08em;pointer-events:none}
+    .radar-note{position:absolute;right:12px;top:12px;border:1px solid #243743;border-radius:7px;background:#0a131ad9;color:#9dd9cf;padding:7px 9px;font-size:10px;font-weight:700;pointer-events:none}
+    #fire{position:absolute;right:22px;bottom:20px;width:77px;height:77px;border:2px solid #efbc8e;border-radius:50%;background:#bb7f3a3b;color:#ffe0b7;font-size:12px;letter-spacing:.12em;font-weight:900;touch-action:none;box-shadow:0 0 0 7px #b28a4220;cursor:pointer}
+    #fire:active,.firing{background:#a86539ba!important;transform:scale(.96)}
+    .joystick-guide{position:absolute;left:23px;bottom:16px;width:92px;height:92px;border:1px dashed #77b8bb60;border-radius:50%;pointer-events:none;display:grid;place-items:center;color:#9fc0cb70;font-size:9px;letter-spacing:.12em}
+    .joystick-guide::after{content:"";width:35px;height:35px;border:1px solid #74bfbb40;border-radius:50%;position:absolute}
+    .hud{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid #223445}
+    .stat{padding:14px 17px;border-right:1px solid #223445}.stat:last-child{border-right:0}
+    .stat span{display:block;font-size:10px;letter-spacing:.13em;color:var(--muted);font-weight:700}
+    .stat strong{display:block;margin-top:6px;font-size:25px;line-height:1;font-weight:790;font-variant-numeric:tabular-nums}
+    .panel{padding:18px}.panel h2{font-size:11px;margin:0 0 17px;letter-spacing:.16em;color:#a8b7c5}
+    .module{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 0;border-top:1px solid #283745}
+    .module:first-of-type{border-top:none;padding-top:0}.module h3{font-size:13px;margin:0 0 4px;font-weight:750}.module p{font-size:11px;line-height:1.45;color:var(--muted);margin:0}
+    .switch{position:relative;flex-shrink:0;width:46px;height:27px;border-radius:999px;background:#2b3946;border:1px solid #42505c;cursor:pointer;transition:background .15s}
+    .switch[aria-checked="true"]{background:#27796a;border-color:#56c9b5}.switch:after{content:"";position:absolute;top:3px;left:3px;width:19px;height:19px;background:#acb8c4;border-radius:50%;transition:transform .15s,background .15s}
+    .switch[aria-checked="true"]:after{transform:translateX(19px);background:#edfff8}
+    .range-wrap{padding:17px 0 5px;border-top:1px solid #283745}
+    .range-head{display:flex;justify-content:space-between;font-size:12px;font-weight:750;margin-bottom:12px}.range-head output{color:var(--teal);font-variant-numeric:tabular-nums}
+    input[type=range]{width:100%;accent-color:var(--teal);cursor:pointer}.range-footer{display:flex;justify-content:space-between;color:var(--muted);font-size:10px;margin-top:7px}
+    .button-row{display:flex;gap:8px;margin-top:20px}.button-row button{flex:1;border:1px solid #3a5864;padding:11px 8px;border-radius:9px;background:#1b3840;color:#e8fffb;font-size:11px;font-weight:850;letter-spacing:.05em;cursor:pointer}
+    .button-row button:last-child{background:#202d39;border-color:#344553;color:#b5c5d2}
+    .readout{font-size:10px;line-height:1.8;color:var(--muted);border-top:1px solid #253542;margin-top:18px;padding-top:14px}
+    footer{margin-top:14px;color:#8d9bab;font-size:11px;line-height:1.65;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    footer strong{font-weight:720;color:#bed1de} .kbd{background:#263441;padding:2px 4px;border-radius:4px;color:#dce5ec}
+    @media(max-width:850px){main{padding:12px}header{margin-bottom:12px}.layout{grid-template-columns:1fr}.panel{padding:17px}.viewport{aspect-ratio:1.39;max-height:65dvh}.panel .module{padding:11px 0}.hud .stat{padding:10px 13px}.stat strong{font-size:23px}footer{font-size:10px}}
+    @media(max-width:480px){h1{font-size:14px}.tag{font-size:9px}.mark{width:35px;height:35px}.viewport{aspect-ratio:.96;min-height:340px;max-height:52dvh}.overlay-tip{font-size:8px}.radar-note{font-size:9px}#fire{width:67px;height:67px;right:17px;bottom:16px}.joystick-guide{width:75px;height:75px;left:12px;bottom:12px}.readout{font-size:10px}}
+    @media(orientation:landscape) and (max-height:580px){main{padding:8px 12px}header{margin-bottom:8px}.mark{width:30px;height:30px}.layout{grid-template-columns:minmax(0,1fr) 243px}.panel{padding:10px}.panel h2{margin-bottom:5px}.panel .module{padding:7px 0}.viewport{min-height:200px;max-height:77dvh;aspect-ratio:1.49}.hud .stat{padding:7px 13px}.stat strong{font-size:17px}.range-wrap{padding:6px 0}.button-row{margin-top:6px}.readout{display:none}.arena-top{padding:6px 14px}.eyebrow{display:none}}
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="brand"><div class="mark">⌖</div><div><h1>TACTICAL AIM LAB <span style="color:var(--teal)">/</span> MOBILE</h1><div class="eyebrow">SIMULATION ENGINE • BUILD 01</div></div></div>
+    <span class="tag">● OFFLINE DEMO</span>
+  </header>
+  <div class="layout">
+    <section class="surface" aria-label="Training arena">
+      <div class="arena-top"><span class="title">TRAINING ARENA <span style="color:#66879b">/</span> ALPHA SITE</span><span class="status" id="status">● SESSION ACTIVE</span></div>
+      <div class="viewport" id="viewport"><canvas id="arena" aria-label="Top-down shooter simulator with bots and walls"></canvas>
+        <div class="overlay-tip">MOVE: LEFT DRAG · AIM: RIGHT DRAG</div><div class="radar-note" id="lock">TARGET / MANUAL</div>
+        <div class="joystick-guide">MOVE</div><button id="fire" aria-label="Hold to fire">FIRE</button>
+      </div>
+      <div class="hud"><div class="stat"><span>TARGETS HIT</span><strong id="kills">00</strong></div><div class="stat"><span>ACCURACY</span><strong id="accuracy">0%</strong></div><div class="stat"><span>SHOTS FIRED</span><strong id="shots">00</strong></div></div>
+    </section>
+    <aside class="surface panel" aria-label="Aim settings">
+      <h2>CONTROL SYSTEM / 01</h2>
+      <div class="module"><div><h3>Aimbot</h3><p>Auto-lock nearest reachable bot</p></div><button class="switch" id="aimbot" role="switch" aria-label="Aimbot" aria-checked="false"></button></div>
+      <div class="module"><div><h3>ESP overlay</h3><p>Highlight bots behind walls</p></div><button class="switch" id="esp" role="switch" aria-label="ESP overlay" aria-checked="false"></button></div>
+      <div class="module"><div><h3>Wall penetration</h3><p>Projectiles pass through obstacles</p></div><button class="switch" id="wallbang" role="switch" aria-label="Wall penetration" aria-checked="false"></button></div>
+      <div class="range-wrap"><div class="range-head"><label for="smooth">AIM SMOOTHNESS</label><output id="smooth-value">65%</output></div><input id="smooth" aria-label="Aim smoothness" type="range" min="0" max="100" value="65"><div class="range-footer"><span>FAST SNAP</span><span>SLOW TRACK</span></div></div>
+      <div class="button-row"><button id="respawn">RESET MATCH</button><button id="reset">DEFAULTS</button></div>
+      <div class="readout"><strong style="color:#b8cbd5">INPUT REFERENCE</strong><div>Mobile: left drag = move; right drag = aim; hold FIRE = shoot.</div><div>Desktop: WASD = move; mouse = aim; hold click/space = shoot.</div></div>
+    </aside>
+  </div>
+  <footer><span><strong>LOCAL SANDBOX.</strong> No injection, game memory access, network traffic, or Standoff 2 integration.</span><span>ENGINE STATUS: <strong id="engine-status">INITIALIZING</strong></span></footer>
+</main>
+<script src="engine.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
